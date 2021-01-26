@@ -36,14 +36,24 @@ stages:
           restoreSolution: '$(tfsProcessorSolution)'
           feedsToUse: 'select'
       - task: DotNetCoreCLI@2
-        condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
         displayName: 'Build $(tfsProcessorSolution)'
         inputs:
           command: 'build'
           projects: '$(tfsProcessorSolution)'
           arguments: '/m /p:DeployExtension=false /p:platform="$(BuildPlatform)" /p:configuration=$(BuildConfiguration) /p:ZipPackageCompressionLevel=normal'
+      - task: NuGetCommand@2
+        displayName: 'NuGet restore $(solution)'
+        inputs:
+          command: 'restore'
+          restoreSolution: '$(solution)'
+          feedsToUse: 'select'
       - task: DotNetCoreCLI@2
-        condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+        displayName: Dotnet restore $(solution)
+        inputs:
+          command: 'restore'
+          projects: '$(solution)'
+          feedsToUse: 'select'
+      - task: DotNetCoreCLI@2
         displayName: 'Build $(solution)'
         inputs:
           command: 'build'
